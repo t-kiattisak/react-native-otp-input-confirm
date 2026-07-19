@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
-import type { PinStickProps } from './types';
+import type { PinStickProps } from './componentTypes';
 
 export function PinStick({ style, testID }: PinStickProps) {
   const opacity = useRef(new Animated.Value(1)).current;

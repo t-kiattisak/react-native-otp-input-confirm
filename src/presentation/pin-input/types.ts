@@ -1,8 +1,14 @@
 import type { ReactNode } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
 import type { PinLength, PinValue } from '../../domain/pin/types';
+import type { PinThemeOverrides } from '../theme/types';
 
-export type PinInputProps = {
+export type PinInputRef = {
+  focus: () => void;
+  blur: () => void;
+  clear: () => void;
+};
+
+export type PinInputBaseProps = {
   value: PinValue;
   onChange: (value: PinValue) => void;
   length?: PinLength;
@@ -11,31 +17,14 @@ export type PinInputProps = {
   secureTextEntry?: boolean;
   onComplete?: (value: PinValue) => void;
   testID?: string;
-};
-
-export type PinContainerProps = {
-  style?: StyleProp<ViewStyle>;
+  error?: boolean;
+  errorMessage?: string;
+  styles?: PinThemeOverrides;
+  hapticFeedback?: boolean;
+  accessibilityLabel?: string;
   children?: ReactNode;
-  testID?: string;
 };
 
-export type PinSlotRenderProps = {
-  index: number;
-  isFocused: boolean;
-  isFilled: boolean;
-  valueInside: string;
-};
+export type PinInputProps = PinInputBaseProps;
 
-export type PinSlotProps = {
-  index: number;
-  children: (props: PinSlotRenderProps) => ReactNode;
-};
-
-export type PinStickProps = {
-  style?: StyleProp<ViewStyle>;
-  testID?: string;
-};
-
-export type PinHiddenInputProps = {
-  testID?: string;
-};
+export type PinInputPresetProps = PinInputBaseProps;

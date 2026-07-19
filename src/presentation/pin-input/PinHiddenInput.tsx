@@ -1,8 +1,12 @@
-import { TextInput, StyleSheet } from 'react-native';
+import { Platform, TextInput, StyleSheet } from 'react-native';
 import { usePinInput } from '../../application/pin-input/usePinInput';
-import type { PinHiddenInputProps } from './types';
+import type { PinHiddenInputProps } from './componentTypes';
 
-export function PinHiddenInput({ testID }: PinHiddenInputProps) {
+export function PinHiddenInput({
+  testID,
+  accessibilityLabel = 'OTP digit input',
+  accessibilityHint = 'Enter your one-time passcode',
+}: PinHiddenInputProps) {
   const {
     value,
     length,
@@ -11,6 +15,8 @@ export function PinHiddenInput({ testID }: PinHiddenInputProps) {
     inputRef,
     handleChangeText,
     handleKeyPress,
+    handleInputFocus,
+    handleInputBlur,
   } = usePinInput();
 
   return (
@@ -19,14 +25,18 @@ export function PinHiddenInput({ testID }: PinHiddenInputProps) {
       value={value}
       onChangeText={handleChangeText}
       onKeyPress={handleKeyPress}
+      onFocus={handleInputFocus}
+      onBlur={handleInputBlur}
       keyboardType="number-pad"
       maxLength={length}
       caretHidden
       editable={!disabled}
       secureTextEntry={secureTextEntry}
-      autoComplete="one-time-code"
+      autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
       textContentType="oneTimeCode"
       importantForAutofill="yes"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
       testID={testID}
       style={styles.hiddenInput}
     />
