@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getActiveFocusIndex } from '../../domain/pin/pinFocus';
 import type { PinLength, PinValue } from '../../domain/pin/types';
-import { focusTextInput, type PinTextInputRef } from './focusTextInput';
+import {
+  blurTextInput,
+  focusTextInput,
+  setTextInputSelection,
+  setTextInputValue,
+  type PinTextInputRef,
+} from './focusTextInput';
 import {
   applyPinBackspace,
   applyPinChangeText,
   applySlotPress,
 } from './pinInputActions';
+import { triggerHaptic } from './triggerHaptic';
 
 type UsePinInputControllerParams = {
   value: PinValue;
@@ -15,6 +22,7 @@ type UsePinInputControllerParams = {
   autoFocus?: boolean;
   disabled?: boolean;
   onComplete?: (value: PinValue) => void;
+  hapticFeedback?: boolean;
 };
 
 export function usePinInputController({
@@ -24,11 +32,13 @@ export function usePinInputController({
   autoFocus = false,
   disabled = false,
   onComplete,
+  hapticFeedback = false,
 }: UsePinInputControllerParams) {
   const inputRef = useRef<PinTextInputRef>(null);
   const [focusIndex, setFocusIndex] = useState(() =>
     getActiveFocusIndex(value, length)
   );
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   useEffect(() => {
     setFocusIndex(getActiveFocusIndex(value, length));
@@ -37,24 +47,45 @@ export function usePinInputController({
   useEffect(() => {
     if (autoFocus && !disabled) {
       focusTextInput(inputRef.current);
+      setIsInputFocused(true);
     }
   }, [autoFocus, disabled]);
+
+  const handleInputFocus = useCallback(() => {
+    setIsInputFocused(true);
+  }, []);
+
+  const handleInputBlur = useCallback(() => {
+    setIsInputFocused(false);
+  }, []);
+
+  const handleComplete = useCallback(
+    (completedValue: PinValue) => {
+      if (hapticFeedback) {
+        triggerHaptic();
+      }
+
+      onComplete?.(completedValue);
+    },
+    [hapticFeedback, onComplete]
+  );
 
   const handleChangeText = useCallback(
     (text: string) => {
       const nextFocusIndex = applyPinChangeText(text, {
         value,
+        focusIndex,
         length,
         disabled,
         onChange,
-        onComplete,
+        onComplete: handleComplete,
       });
 
       if (nextFocusIndex !== null) {
         setFocusIndex(nextFocusIndex);
       }
     },
-    [disabled, length, onChange, onComplete, value]
+    [disabled, focusIndex, handleComplete, length, onChange, value]
   );
 
   const handleKeyPress = useCallback(
@@ -65,17 +96,18 @@ export function usePinInputController({
 
       const nextFocusIndex = applyPinBackspace({
         value,
+        focusIndex,
         length,
         disabled,
         onChange,
-        onComplete,
+        onComplete: handleComplete,
       });
 
       if (nextFocusIndex !== null) {
         setFocusIndex(nextFocusIndex);
       }
     },
-    [disabled, length, onChange, onComplete, value]
+    [disabled, focusIndex, handleComplete, length, onChange, value]
   );
 
   const handleSlotPress = useCallback(
@@ -92,8 +124,11 @@ export function usePinInputController({
         onChange(nextValue);
       }
 
+      setTextInputValue(inputRef.current, nextValue);
       focusTextInput(inputRef.current);
+      setIsInputFocused(true);
       setFocusIndex(nextFocusIndex);
+      setTextInputSelection(inputRef.current, nextFocusIndex, nextFocusIndex);
     },
     [disabled, onChange, value]
   );
@@ -101,18 +136,38 @@ export function usePinInputController({
   const focusInput = useCallback(() => {
     if (!disabled) {
       focusTextInput(inputRef.current);
+      setIsInputFocused(true);
     }
   }, [disabled]);
+
+  const blurInput = useCallback(() => {
+    blurTextInput(inputRef.current);
+    setIsInputFocused(false);
+  }, []);
+
+  const clearInput = useCallback(() => {
+    if (!disabled) {
+      onChange('');
+      setFocusIndex(0);
+      focusTextInput(inputRef.current);
+      setIsInputFocused(true);
+    }
+  }, [disabled, onChange]);
 
   return {
     value,
     length,
     focusIndex,
+    isInputFocused,
     disabled,
     inputRef,
     handleChangeText,
     handleKeyPress,
     handleSlotPress,
+    handleInputFocus,
+    handleInputBlur,
     focusInput,
+    blurInput,
+    clearInput,
   };
 }

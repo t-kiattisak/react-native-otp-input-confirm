@@ -10,6 +10,7 @@ describe('pinInputActions', () => {
     const onChange = jest.fn();
     const nextFocusIndex = applyPinChangeText('a1b2', {
       value: '',
+      focusIndex: 0,
       length: 6,
       onChange,
     });
@@ -24,6 +25,7 @@ describe('pinInputActions', () => {
 
     applyPinChangeText('123456', {
       value: '',
+      focusIndex: 0,
       length: 6,
       onChange,
       onComplete,
@@ -36,6 +38,7 @@ describe('pinInputActions', () => {
     const onChange = jest.fn();
     const nextFocusIndex = applyPinBackspace({
       value: '123',
+      focusIndex: 3,
       length: 6,
       onChange,
     });
@@ -66,6 +69,7 @@ describe('pinInputActions', () => {
     const onChange = jest.fn();
     const nextFocusIndex = applyPinChangeText('123', {
       value: '',
+      focusIndex: 0,
       length: 6,
       disabled: true,
       onChange,
@@ -73,5 +77,18 @@ describe('pinInputActions', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(nextFocusIndex).toBeNull();
+  });
+
+  it('inserts at focusIndex when native text is out of sync after truncate', () => {
+    const onChange = jest.fn();
+    const nextFocusIndex = applyPinChangeText('2123456', {
+      value: '12',
+      focusIndex: 2,
+      length: 6,
+      onChange,
+    });
+
+    expect(onChange).toHaveBeenCalledWith('122');
+    expect(nextFocusIndex).toBe(3);
   });
 });

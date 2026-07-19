@@ -30,4 +30,12 @@ describe('pinFocus', () => {
       valueInside: '',
     });
   });
+
+  it('clears slot focus when input is blurred', () => {
+    expect(getSlotState('123', 2, 2, false)).toEqual({
+      isFocused: false,
+      isFilled: true,
+      valueInside: '3',
+    });
+  });
 });

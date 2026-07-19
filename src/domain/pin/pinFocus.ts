@@ -15,12 +15,13 @@ export function getActiveFocusIndex(
 export function getSlotState(
   value: PinValue,
   focusIndex: number,
-  slotIndex: number
+  slotIndex: number,
+  isInputFocused = true
 ): SlotState {
   const valueInside = getCharAt(value, slotIndex);
 
   return {
-    isFocused: focusIndex === slotIndex,
+    isFocused: isInputFocused && focusIndex === slotIndex,
     isFilled: valueInside !== '',
     valueInside,
   };
