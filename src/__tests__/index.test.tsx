@@ -1,3 +1,8 @@
-import { it } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+import { PinInput } from '../index';
 
-it.todo('write a test');
+describe('react-native-otp-input-confirm', () => {
+  it('exports PinInput', () => {
+    expect(PinInput).toBeDefined();
+  });
+});
