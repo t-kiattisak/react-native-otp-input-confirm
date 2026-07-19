@@ -114,14 +114,6 @@
       ]
     ]
   },
-  "codegenConfig": {
-    "name": "OtpInputConfirmSpec",
-    "type": "modules",
-    "jsSrcsDir": "src",
-    "android": {
-      "javaPackageName": "com.otpinputconfirm"
-    }
-  },
   "prettier": {
     "quoteProps": "consistent",
     "singleQuote": true,
