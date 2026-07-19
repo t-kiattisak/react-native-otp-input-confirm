@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import { usePinInput } from '../../application/pin-input/usePinInput';
+import { usePinInput } from '../../application/pin-input/hooks/usePinInput';
 import type { PinContainerProps } from './componentTypes';
 
 export function PinContainer({

@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle } from 'react';
 import { View } from 'react-native';
-import { PinInputContext } from '../../application/pin-input/PinInputContext';
-import { usePinInputController } from '../../application/pin-input/usePinInputController';
+import { PinInputContext } from '../../application/pin-input/context/PinInputContext';
+import { usePinInputController } from '../../application/pin-input/hooks/usePinInputController';
 import { PinHiddenInput } from './PinHiddenInput';
 import { PinInputDefaultView } from './PinInputDefaultView';
 import type { PinInputProps, PinInputRef } from './types';

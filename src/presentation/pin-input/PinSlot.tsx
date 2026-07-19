@@ -1,6 +1,6 @@
 import { Pressable } from 'react-native';
 import { getSlotState } from '../../domain/pin/pinFocus';
-import { usePinInput } from '../../application/pin-input/usePinInput';
+import { usePinInput } from '../../application/pin-input/hooks/usePinInput';
 import type { PinSlotProps } from './componentTypes';
 
 export function PinSlot({ index, children }: PinSlotProps) {

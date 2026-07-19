@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import { usePinInput } from '../../application/pin-input/usePinInput';
+import { usePinInput } from '../../application/pin-input/hooks/usePinInput';
 import { usePinTheme } from '../theme/usePinTheme';
 import { PinContainer } from './PinContainer';
 import { PinSlot } from './PinSlot';

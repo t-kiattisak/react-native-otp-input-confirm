@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getActiveFocusIndex } from '../../domain/pin/pinFocus';
-import type { PinLength, PinValue } from '../../domain/pin/types';
+import { getActiveFocusIndex } from '../../../domain/pin/pinFocus';
+import type { PinLength, PinValue } from '../../../domain/pin/types';
 import {
   blurTextInput,
   focusTextInput,
   setTextInputSelection,
   setTextInputValue,
   type PinTextInputRef,
-} from './focusTextInput';
+} from '../utility/focusTextInput';
 import {
   applyPinBackspace,
   applyPinChangeText,
   applySlotPress,
-} from './pinInputActions';
-import { triggerHaptic } from './triggerHaptic';
+} from '../utility/pinInputActions';
+import { triggerHaptic } from '../utility/triggerHaptic';
 
 type UsePinInputControllerParams = {
   value: PinValue;

@@ -10,7 +10,7 @@ export { PinStick } from './presentation/pin-input/PinStick';
 export { PinInputPreset } from './presentation/pin-input/PinInputPreset';
 export { PinConfirm } from './presentation/pin-confirm/PinConfirm';
 
-export { usePinInput } from './application/pin-input/usePinInput';
+export { usePinInput } from './application/pin-input/hooks/usePinInput';
 
 export type { PinTheme, PinThemeOverrides } from './presentation/theme/types';
 export type {

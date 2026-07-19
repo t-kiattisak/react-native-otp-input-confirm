@@ -1,5 +1,5 @@
 import { Platform, TextInput, StyleSheet } from 'react-native';
-import { usePinInput } from '../../application/pin-input/usePinInput';
+import { usePinInput } from '../../application/pin-input/hooks/usePinInput';
 import type { PinHiddenInputProps } from './componentTypes';
 
 export function PinHiddenInput({

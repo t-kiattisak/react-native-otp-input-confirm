@@ -1,6 +1,6 @@
 import { useContext } from 'react';
-import { PinInputContext } from './PinInputContext';
-import type { PinInputContextValue } from './types';
+import { PinInputContext } from '../context/PinInputContext';
+import type { PinInputContextValue } from '../types';
 
 export function usePinInput(): PinInputContextValue {
   const context = useContext(PinInputContext);

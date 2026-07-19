@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import type { PinLength, PinValue } from '../../domain/pin/types';
-import type { PinTextInputRef } from './focusTextInput';
+import type { PinTextInputRef } from './utility/focusTextInput';
 
 export type PinInputContextValue = {
   value: PinValue;

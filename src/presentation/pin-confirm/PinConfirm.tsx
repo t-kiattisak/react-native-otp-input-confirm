@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { isPinComplete } from '../../domain/pin/pinRules';
 import { isPinMatch, shouldShowConfirmError } from '../../domain/pin/pinMatch';
-import { triggerHaptic } from '../../application/pin-input/triggerHaptic';
+import { triggerHaptic } from '../../application/pin-input/utility/triggerHaptic';
 import type { PinLength, PinValue } from '../../domain/pin/types';
 import { PinInputPreset } from '../pin-input/PinInputPreset';
 import type { PinThemeOverrides } from '../theme/types';

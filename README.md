@@ -177,7 +177,10 @@ Slot highlight and the caret stick follow the hidden input focus state. When the
 ```
 src/
 ├── domain/pin/              # validation, focus, match logic
-├── application/pin-input/   # controller, actions, haptics
+├── application/pin-input/   # hooks, utility helpers, context
+│   ├── hooks/               # usePinInput, usePinInputController
+│   ├── utility/             # pinInputActions, focusTextInput, triggerHaptic
+│   └── context/             # PinInputContext
 ├── presentation/theme/      # createTheme, PinThemeProvider
 ├── presentation/pin-input/  # PinInput, headless primitives
 └── presentation/pin-confirm/# PinConfirm

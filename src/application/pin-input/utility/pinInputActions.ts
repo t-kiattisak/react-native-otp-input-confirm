@@ -1,6 +1,6 @@
-import { getActiveFocusIndex } from '../../domain/pin/pinFocus';
-import { isPinComplete, sanitizePinInput } from '../../domain/pin/pinRules';
-import type { PinLength, PinValue } from '../../domain/pin/types';
+import { getActiveFocusIndex } from '../../../domain/pin/pinFocus';
+import { isPinComplete, sanitizePinInput } from '../../../domain/pin/pinRules';
+import type { PinLength, PinValue } from '../../../domain/pin/types';
 
 type PinInputActionParams = {
   value: PinValue;
