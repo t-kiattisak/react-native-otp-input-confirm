@@ -1,16 +1,16 @@
 package com.otpinputconfirm
 
-import com.facebook.react.ReactPackage
+import com.facebook.react.BaseReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.uimanager.ViewManager
+import com.facebook.react.module.model.ReactModuleInfoProvider
 
-class OtpInputConfirmPackage : ReactPackage {
-  override fun createNativeModules(
+class OtpInputConfirmPackage : BaseReactPackage() {
+  override fun getModule(
+    name: String,
     reactContext: ReactApplicationContext
-  ): List<NativeModule> = emptyList()
+  ): NativeModule? = null
 
-  override fun createViewManagers(
-    reactContext: ReactApplicationContext
-  ): List<ViewManager<*, *>> = emptyList()
+  override fun getReactModuleInfoProvider(): ReactModuleInfoProvider =
+    ReactModuleInfoProvider { emptyMap() }
 }
