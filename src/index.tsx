@@ -24,7 +24,4 @@ export type {
   PinSlotRenderProps,
   PinStickProps,
 } from './presentation/pin-input/componentTypes';
-export type {
-  PinConfirmProps,
-  PinConfirmLabels,
-} from './presentation/pin-confirm/PinConfirm';
+export type { PinConfirmProps } from './presentation/pin-confirm/PinConfirm';

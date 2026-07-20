@@ -7,7 +7,7 @@ Headless-friendly OTP / PIN input for React Native with theming, confirmation fl
 - `PinInput` with default OTP UI or headless composition
 - `createTheme()` + `PinThemeProvider` for app-wide styling
 - `PinInputPreset` themed variant
-- `PinConfirm` two-field match validation
+- `PinConfirm` single masked PIN input with parent-controlled error
 - Tap-to-edit with truncate-from-index behavior
 - `onComplete`, error state, haptic feedback, ref API, and accessibility support
 - SMS OTP keyboard autofill (iOS Security Code AutoFill / Android `sms-otp`)
@@ -95,18 +95,31 @@ import {
 
 ## PinConfirm
 
+Single masked PIN input. Validation and error state are controlled by the parent — use `onComplete` to verify, then pass `error` / `errorMessage` when verification fails.
+
 ```tsx
+import { useState } from 'react';
 import { PinConfirm } from 'react-native-otp-input-confirm';
+
+const [pin, setPin] = useState('');
+const [error, setError] = useState(false);
 
 <PinConfirm
   value={pin}
-  confirmValue={confirmPin}
-  onChange={setPin}
-  onConfirmChange={setConfirmPin}
+  onChange={(next) => {
+    setPin(next);
+    setError(false);
+  }}
   length={6}
-  labels={{ pin: 'Enter PIN', confirm: 'Confirm PIN' }}
-  onMatch={(code) => console.log('matched', code)}
-  errorMessage="PIN does not match"
+  maskChar="*"
+  label="Enter PIN"
+  error={error}
+  errorMessage={error ? 'PIN does not match' : undefined}
+  onComplete={(code) => {
+    if (!verifyPin(code)) {
+      setError(true);
+    }
+  }}
 />;
 ```
 
@@ -120,6 +133,7 @@ import { PinConfirm } from 'react-native-otp-input-confirm';
 | `autoFocus` | `boolean` | `false` | Focus hidden input on mount |
 | `disabled` | `boolean` | `false` | Disable input |
 | `secureTextEntry` | `boolean` | `false` | Mask digits |
+| `maskChar` | `string` | `'•'` | Character shown when masking |
 | `onComplete` | `(value: string) => void` | — | Fired when all digits are entered |
 | `error` | `boolean` | `false` | Error state |
 | `errorMessage` | `string` | — | Error text below input |
@@ -142,9 +156,8 @@ When an OTP SMS arrives, iOS and Android can show the code **above the keyboard*
 
 - Keep the OTP field **focused** when the SMS arrives — use `autoFocus` on the OTP screen.
 - Test on a **real device**; iOS Simulator usually does not show SMS suggestions.
-- Do **not** use `secureTextEntry` on OTP screens; some devices hide autofill when masking is enabled.
+- Do **not** use `secureTextEntry` on SMS OTP screens; some devices hide autofill when masking is enabled.
 - Ask your backend to send a recognizable OTP format, e.g. `Your code is 123456` or (iOS) `@yourapp.com #123456`.
-- With `PinConfirm`, autofill goes to whichever field is focused — focus the Enter PIN field first.
 
 Pasting or autofill fills all digits at once and triggers `onComplete` when the PIN is full.
 
@@ -156,19 +169,18 @@ Slot highlight and the caret stick follow the hidden input focus state. When the
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `value` | `string` | — | Primary PIN value |
-| `confirmValue` | `string` | — | Confirmation PIN value |
-| `onChange` | `(value: string) => void` | — | Primary PIN change handler |
-| `onConfirmChange` | `(value: string) => void` | — | Confirm PIN change handler |
+| `value` | `string` | — | Controlled PIN value |
+| `onChange` | `(value: string) => void` | — | Value change handler |
 | `length` | `number` | `6` | Number of digits |
-| `autoFocus` | `boolean` | `false` | Focus the primary PIN field on mount |
-| `disabled` | `boolean` | `false` | Disable both fields |
-| `secureTextEntry` | `boolean` | `false` | Mask digits |
-| `onMatch` | `(value: string) => void` | — | Fired when both PINs match and are complete |
-| `onMismatch` | `() => void` | — | Fired when confirm is complete but mismatched |
-| `labels` | `{ pin?: string; confirm?: string }` | — | Optional field labels |
-| `errorMessage` | `string` | `'PIN does not match'` | Error text on mismatch |
-| `hapticFeedback` | `boolean` | `false` | Vibrate on match / mismatch |
+| `autoFocus` | `boolean` | `false` | Focus input on mount |
+| `disabled` | `boolean` | `false` | Disable input |
+| `secureTextEntry` | `boolean` | `true` | Mask digits |
+| `maskChar` | `string` | `'•'` | Character shown when masking |
+| `onComplete` | `(value: string) => void` | — | Fired when all digits are entered |
+| `error` | `boolean` | `false` | Error state (parent-controlled) |
+| `errorMessage` | `string` | — | Error text below input |
+| `label` | `string` | — | Optional label above input |
+| `hapticFeedback` | `boolean` | `false` | Vibrate on complete |
 | `styles` | `Partial<PinTheme>` | — | Local theme override |
 | `testID` | `string` | `'pin-confirm'` | Root test id |
 
@@ -176,7 +188,7 @@ Slot highlight and the caret stick follow the hidden input focus state. When the
 
 ```
 src/
-├── domain/pin/              # validation, focus, match logic
+├── domain/pin/              # validation, focus logic
 ├── application/pin-input/   # hooks, utility helpers, context
 │   ├── hooks/               # usePinInput, usePinInputController
 │   ├── utility/             # pinInputActions, focusTextInput, triggerHaptic

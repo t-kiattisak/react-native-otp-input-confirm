@@ -30,7 +30,8 @@ export default function App() {
   const [tab, setTab] = useState<DemoTab>('default');
   const [value, setValue] = useState('');
   const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const expectedPin = '123456';
 
   return (
     <PinThemeProvider theme={appTheme}>
@@ -125,12 +126,23 @@ export default function App() {
           {tab === 'confirm' ? (
             <PinConfirm
               value={pin}
-              confirmValue={confirmPin}
-              onChange={setPin}
-              onConfirmChange={setConfirmPin}
+              onChange={(next) => {
+                setPin(next);
+                setPinError(false);
+              }}
               length={6}
-              labels={{ pin: 'Enter PIN', confirm: 'Confirm PIN' }}
-              onMatch={(code) => console.log('Matched:', code)}
+              maskChar="*"
+              label="Enter PIN"
+              autoFocus
+              error={pinError}
+              errorMessage={pinError ? 'PIN does not match' : undefined}
+              onComplete={(code) => {
+                if (code !== expectedPin) {
+                  setPinError(true);
+                  return;
+                }
+                console.log('Verified:', code);
+              }}
               hapticFeedback
             />
           ) : null}

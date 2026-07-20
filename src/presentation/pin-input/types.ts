@@ -15,6 +15,7 @@ export type PinInputBaseProps = {
   autoFocus?: boolean;
   disabled?: boolean;
   secureTextEntry?: boolean;
+  maskChar?: string;
   onComplete?: (value: PinValue) => void;
   testID?: string;
   error?: boolean;

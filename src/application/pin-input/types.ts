@@ -9,6 +9,7 @@ export type PinInputContextValue = {
   isInputFocused: boolean;
   disabled: boolean;
   secureTextEntry: boolean;
+  maskChar: string;
   inputRef: RefObject<PinTextInputRef | null>;
   handleChangeText: (text: string) => void;
   handleKeyPress: (event: { nativeEvent: { key: string } }) => void;

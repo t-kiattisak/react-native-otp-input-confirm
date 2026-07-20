@@ -20,7 +20,7 @@ export function PinInputDefaultView({
   accessibilityLabel = 'OTP input',
 }: PinInputDefaultViewProps) {
   const theme = usePinTheme(styleOverrides);
-  const { length, disabled, secureTextEntry, value } = usePinInput();
+  const { length, disabled, secureTextEntry, maskChar, value } = usePinInput();
 
   return (
     <View
@@ -46,7 +46,7 @@ export function PinInputDefaultView({
                 <View style={theme.slotContent}>
                   {valueInside !== '' ? (
                     <Text style={theme.text}>
-                      {secureTextEntry ? '•' : valueInside}
+                      {secureTextEntry ? maskChar : valueInside}
                     </Text>
                   ) : null}
                   {isFocused && !disabled && valueInside === '' ? (

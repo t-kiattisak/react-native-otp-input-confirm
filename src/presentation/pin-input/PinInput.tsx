@@ -15,6 +15,7 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       autoFocus = false,
       disabled = false,
       secureTextEntry = false,
+      maskChar = '•',
       onComplete,
       testID,
       error = false,
@@ -49,6 +50,7 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
     const contextValue = {
       ...controller,
       secureTextEntry,
+      maskChar,
     };
 
     return (
