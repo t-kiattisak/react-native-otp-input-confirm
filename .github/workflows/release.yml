@@ -1,0 +1,159 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (patch/minor/major → npm latest; prerelease → beta/rc tag)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      pre_release_channel:
+        description: 'Pre-release channel (used only when release type is prerelease)'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - beta
+          - rc
+      dry_run:
+        description: 'Dry run (no commit, tag, publish, or GitHub release)'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Release (${{ inputs.release_type }}${{ inputs.release_type == 'prerelease' && format('-{0}', inputs.pre_release_channel) || '' }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node & Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Build Package
+        run: yarn prepare
+
+      - name: Verify npm CLI for trusted publishing
+        run: |
+          echo "Node $(node --version), npm $(npm --version)"
+          node <<'EOF'
+          const { execSync } = require('child_process');
+          const npmVersion = execSync('npm --version', { encoding: 'utf8' }).trim();
+          const parts = npmVersion.split('.').map(Number);
+          const ok =
+            parts[0] > 11 ||
+            (parts[0] === 11 && parts[1] > 5) ||
+            (parts[0] === 11 && parts[1] === 5 && parts[2] >= 1);
+          if (!ok) {
+            console.error(`::error::Trusted publishing requires npm >= 11.5.1 (found ${npmVersion})`);
+            process.exit(1);
+          }
+          EOF
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Ensure release version is not already on npm
+        if: ${{ inputs.dry_run == false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PKG=$(node -p "require('./package.json').name")
+
+          if [ "${{ inputs.release_type }}" = "prerelease" ]; then
+            TARGET=$(yarn release prerelease --release-version --npm.skipChecks \
+              --preReleaseId=${{ inputs.pre_release_channel }} | tail -1)
+          else
+            TARGET=$(yarn release ${{ inputs.release_type }} --release-version --npm.skipChecks | tail -1)
+          fi
+
+          echo "Planned release version: ${TARGET}"
+
+          if npm view "${PKG}@${TARGET}" version --registry=https://registry.npmjs.org 2>/dev/null | grep -qx "${TARGET}"; then
+            echo "::error::Version ${TARGET} is already on npm — publish would fail."
+            echo "::error::Bump package.json in git to match npm, or use patch/minor/major for the next version."
+            exit 1
+          fi
+
+      - name: Release stable (dry run)
+        if: ${{ inputs.dry_run == true && inputs.release_type != 'prerelease' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn release ${{ inputs.release_type }} --dry-run --npm.skipChecks --npm.tag=latest
+
+      - name: Release pre-release (dry run)
+        if: ${{ inputs.dry_run == true && inputs.release_type == 'prerelease' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          yarn release prerelease
+          --dry-run
+          --npm.skipChecks
+          --npm.tag=${{ inputs.pre_release_channel }}
+          --preReleaseId=${{ inputs.pre_release_channel }}
+          --github.preRelease
+
+      - name: Release stable (production)
+        if: ${{ inputs.dry_run == false && inputs.release_type != 'prerelease' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn release ${{ inputs.release_type }} --ci --npm.skipChecks --no-npm.publish
+
+      - name: Release pre-release (production)
+        if: ${{ inputs.dry_run == false && inputs.release_type == 'prerelease' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          yarn release prerelease \
+            --ci \
+            --npm.skipChecks \
+            --no-npm.publish \
+            --preReleaseId=${{ inputs.pre_release_channel }} \
+            --github.preRelease
+
+      # Trusted Publishing: npmjs.com → Trusted publishing → GitHub Actions
+      # Organization/user MUST be GitHub username "t-kiattisak" (NOT email), repo react-native-otp-input-confirm, workflow release.yml
+      - name: Configure npm OIDC for publish
+        if: ${{ inputs.dry_run == false }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish to npm
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.release_type }}" = "prerelease" ]; then
+            NPM_DIST_TAG="${{ inputs.pre_release_channel }}"
+          else
+            NPM_DIST_TAG="latest"
+          fi
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Publishing ${VERSION} with dist-tag ${NPM_DIST_TAG}..."
+          npm publish --tag "${NPM_DIST_TAG}"
