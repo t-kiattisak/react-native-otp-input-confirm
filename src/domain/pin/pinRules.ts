@@ -1,7 +1,26 @@
-import type { PinLength, PinValue } from './types';
+import type { AutoCapitalizeType, PinLength, PinType, PinValue } from './types';
 
-export function sanitizePinInput(raw: string, length: PinLength): PinValue {
-  return raw.replace(/\D/g, '').slice(0, length);
+export function sanitizePinInput(
+  raw: string,
+  length: PinLength,
+  type: PinType = 'numeric',
+  autoCapitalize: AutoCapitalizeType = 'none'
+): PinValue {
+  let cleaned = raw;
+
+  if (type === 'numeric') {
+    cleaned = cleaned.replace(/\D/g, '');
+  } else if (type === 'alpha') {
+    cleaned = cleaned.replace(/[^a-zA-Z]/g, '');
+  } else if (type === 'alphanumeric') {
+    cleaned = cleaned.replace(/[^a-zA-Z0-9]/g, '');
+  }
+
+  if (autoCapitalize === 'characters') {
+    cleaned = cleaned.toUpperCase();
+  }
+
+  return cleaned.slice(0, length);
 }
 
 export function isPinComplete(value: PinValue, length: PinLength): boolean {

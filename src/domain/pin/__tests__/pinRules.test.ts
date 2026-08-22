@@ -2,8 +2,22 @@ import { describe, expect, it } from '@jest/globals';
 import { getCharAt, isPinComplete, sanitizePinInput } from '../pinRules';
 
 describe('pinRules', () => {
-  it('sanitizes non-digit characters', () => {
+  it('sanitizes non-digit characters by default (numeric mode)', () => {
     expect(sanitizePinInput('a1b2c3', 6)).toBe('123');
+  });
+
+  it('sanitizes alphanumeric characters', () => {
+    expect(sanitizePinInput('a1-b2_c3!@#', 6, 'alphanumeric')).toBe('a1b2c3');
+  });
+
+  it('sanitizes alpha-only characters', () => {
+    expect(sanitizePinInput('a1b2c3!@#', 6, 'alpha')).toBe('abc');
+  });
+
+  it('transforms to uppercase with autoCapitalize="characters"', () => {
+    expect(sanitizePinInput('a1b2c3', 6, 'alphanumeric', 'characters')).toBe(
+      'A1B2C3'
+    );
   });
 
   it('truncates input to length', () => {
