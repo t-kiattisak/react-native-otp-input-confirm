@@ -1,12 +1,30 @@
-import { View, Text, StyleSheet } from 'react-native';
-import type { PinLength, PinValue } from '../../domain/pin/types';
+import { forwardRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
+import type {
+  AutoCapitalizeType,
+  PinLength,
+  PinType,
+  PinValue,
+} from '../../domain/pin/types';
+import type { HapticType } from '../../application/pin-input/hooks/usePinInputController';
+import type { SlotTapBehavior } from '../../application/pin-input/utility/pinInputActions';
 import { PinInputPreset } from '../pin-input/PinInputPreset';
+import type { PinInputRef, PinVariant } from '../pin-input/types';
 import type { PinThemeOverrides } from '../theme/types';
 
 export type PinConfirmProps = {
   value: PinValue;
   onChange: (value: PinValue) => void;
   length?: PinLength;
+  type?: PinType;
+  autoCapitalize?: AutoCapitalizeType;
   autoFocus?: boolean;
   disabled?: boolean;
   secureTextEntry?: boolean;
@@ -16,50 +34,82 @@ export type PinConfirmProps = {
   errorMessage?: string;
   label?: string;
   hapticFeedback?: boolean;
+  onHaptic?: (type: HapticType) => void;
+  blurOnComplete?: boolean;
+  clearOnError?: boolean;
+  shakeOnError?: boolean;
+  slotTapBehavior?: SlotTapBehavior;
+  variant?: PinVariant;
   styles?: PinThemeOverrides;
+  containerStyle?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
   testID?: string;
   accessibilityLabel?: string;
 };
 
-export function PinConfirm({
-  value,
-  onChange,
-  length = 6,
-  autoFocus = false,
-  disabled = false,
-  secureTextEntry = true,
-  maskChar,
-  onComplete,
-  error = false,
-  errorMessage,
-  label,
-  hapticFeedback = false,
-  styles: styleOverrides,
-  testID = 'pin-confirm',
-  accessibilityLabel,
-}: PinConfirmProps) {
-  return (
-    <View style={styles.wrapper} testID={testID}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
-      <PinInputPreset
-        value={value}
-        onChange={onChange}
-        length={length}
-        autoFocus={autoFocus}
-        disabled={disabled}
-        secureTextEntry={secureTextEntry}
-        maskChar={maskChar}
-        onComplete={onComplete}
-        error={error}
-        errorMessage={errorMessage}
-        hapticFeedback={hapticFeedback}
-        styles={styleOverrides}
-        accessibilityLabel={accessibilityLabel}
-        testID={`${testID}-input`}
-      />
-    </View>
-  );
-}
+export const PinConfirm = forwardRef<PinInputRef, PinConfirmProps>(
+  function PinConfirmComponent(
+    {
+      value,
+      onChange,
+      length = 6,
+      type = 'numeric',
+      autoCapitalize = 'none',
+      autoFocus = false,
+      disabled = false,
+      secureTextEntry = true,
+      maskChar,
+      onComplete,
+      error = false,
+      errorMessage,
+      label,
+      hapticFeedback = false,
+      onHaptic,
+      blurOnComplete = false,
+      clearOnError = false,
+      shakeOnError = false,
+      slotTapBehavior = 'truncate',
+      variant = 'box',
+      styles: styleOverrides,
+      containerStyle,
+      labelStyle,
+      testID = 'pin-confirm',
+      accessibilityLabel,
+    },
+    ref
+  ) {
+    return (
+      <View style={[styles.wrapper, containerStyle]} testID={testID}>
+        {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : null}
+        <PinInputPreset
+          ref={ref}
+          value={value}
+          onChange={onChange}
+          length={length}
+          type={type}
+          autoCapitalize={autoCapitalize}
+          autoFocus={autoFocus}
+          disabled={disabled}
+          secureTextEntry={secureTextEntry}
+          maskChar={maskChar}
+          onComplete={onComplete}
+          error={error}
+          errorMessage={errorMessage}
+          hapticFeedback={hapticFeedback}
+          onHaptic={onHaptic}
+          blurOnComplete={blurOnComplete}
+          clearOnError={clearOnError}
+          shakeOnError={shakeOnError}
+          slotTapBehavior={slotTapBehavior}
+          variant={variant}
+          styles={styleOverrides}
+          accessibilityLabel={accessibilityLabel}
+          testID={`${testID}-input`}
+        />
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   wrapper: {
