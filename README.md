@@ -1,16 +1,20 @@
 # react-native-otp-input-confirm
 
-Headless-friendly OTP / PIN input for React Native with theming, confirmation flow, and clean architecture.
+Headless-friendly OTP / PIN input for React Native with theming, confirmation flow, visual variants, and clean architecture.
 
 ## Features
 
 - `PinInput` with default OTP UI or headless composition
+- `PinInputPreset` with built-in visual variants (`box`, `underline`, `rounded`, `circle`)
+- `PinConfirm` single masked PIN input with `forwardRef` support, label & container styling
 - `createTheme()` + `PinThemeProvider` for app-wide styling
-- `PinInputPreset` themed variant
-- `PinConfirm` single masked PIN input with parent-controlled error
-- Tap-to-edit with truncate-from-index behavior
-- `onComplete`, error state, haptic feedback, ref API, and accessibility support
+- Numeric, Alphanumeric, and Alpha OTP types (`type="numeric" | "alphanumeric" | "alpha"`) with `autoCapitalize`
+- Smooth **Shake animation on error** (`shakeOnError`)
+- Auto-blur on complete (`blurOnComplete`) & Auto-clear on error (`clearOnError`)
+- Tap-to-edit behavior (`slotTapBehavior="truncate" | "focus"`)
+- `onComplete`, error state, custom haptic feedback callback (`onHaptic`), ref API, and accessibility support
 - SMS OTP keyboard autofill (iOS Security Code AutoFill / Android `sms-otp`)
+- Fully exported headless hooks and primitives (`usePinInputController`, `PinHiddenInput`, `PinInputDefaultView`)
 
 ## Installation
 
@@ -20,7 +24,7 @@ npm install react-native-otp-input-confirm
 yarn add react-native-otp-input-confirm
 ```
 
-## Theming
+## Theming & Variants
 
 ```tsx
 import {
@@ -36,7 +40,13 @@ const theme = createTheme({
 });
 
 <PinThemeProvider theme={theme}>
-  <PinInputPreset value={value} onChange={setValue} length={6} />
+  {/* Choose from 'box' | 'underline' | 'rounded' | 'circle' */}
+  <PinInputPreset
+    value={value}
+    onChange={setValue}
+    length={6}
+    variant="rounded"
+  />
 </PinThemeProvider>;
 ```
 
@@ -60,10 +70,25 @@ export function OtpScreen() {
       length={6}
       autoFocus
       hapticFeedback
-      onComplete={(code) => console.log(code)}
+      blurOnComplete
+      onComplete={(code) => console.log('Complete:', code)}
     />
   );
 }
+```
+
+## Alphanumeric OTP / Promo Codes
+
+```tsx
+<PinInput
+  value={code}
+  onChange={setCode}
+  length={6}
+  type="alphanumeric"
+  autoCapitalize="characters"
+  variant="rounded"
+  onComplete={(code) => console.log('Promo code:', code)}
+/>
 ```
 
 ## Headless usage
@@ -95,16 +120,18 @@ import {
 
 ## PinConfirm
 
-Single masked PIN input. Validation and error state are controlled by the parent — use `onComplete` to verify, then pass `error` / `errorMessage` when verification fails.
+Single masked PIN input with `forwardRef` control. Validation and error state are controlled by the parent — use `onComplete` to verify, and pass `error` / `errorMessage` when verification fails with optional `shakeOnError` and `clearOnError`.
 
 ```tsx
-import { useState } from 'react';
-import { PinConfirm } from 'react-native-otp-input-confirm';
+import { useRef, useState } from 'react';
+import { PinConfirm, type PinInputRef } from 'react-native-otp-input-confirm';
 
+const confirmRef = useRef<PinInputRef>(null);
 const [pin, setPin] = useState('');
 const [error, setError] = useState(false);
 
 <PinConfirm
+  ref={confirmRef}
   value={pin}
   onChange={(next) => {
     setPin(next);
@@ -112,8 +139,10 @@ const [error, setError] = useState(false);
   }}
   length={6}
   maskChar="*"
-  label="Enter PIN"
+  label="Enter Security PIN"
   error={error}
+  shakeOnError
+  clearOnError
   errorMessage={error ? 'PIN does not match' : undefined}
   onComplete={(code) => {
     if (!verifyPin(code)) {
@@ -121,25 +150,37 @@ const [error, setError] = useState(false);
     }
   }}
 />;
+
+// Clear or focus programmatically:
+// confirmRef.current?.clear();
+// confirmRef.current?.focus();
 ```
 
 ## PinInput props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `value` | `string` | — | Controlled OTP value |
-| `onChange` | `(value: string) => void` | — | Value change handler |
-| `length` | `number` | `6` | Number of digits |
-| `autoFocus` | `boolean` | `false` | Focus hidden input on mount |
-| `disabled` | `boolean` | `false` | Disable input |
-| `secureTextEntry` | `boolean` | `false` | Mask digits |
-| `maskChar` | `string` | `'•'` | Character shown when masking |
-| `onComplete` | `(value: string) => void` | — | Fired when all digits are entered |
-| `error` | `boolean` | `false` | Error state |
-| `errorMessage` | `string` | — | Error text below input |
-| `styles` | `Partial<PinTheme>` | — | Local theme override |
-| `hapticFeedback` | `boolean` | `false` | Vibrate on complete (Android requires `VIBRATE` permission; merged from this library) |
-| `testID` | `string` | — | Root test id |
+| Prop              | Type                                                | Default      | Description                                          |
+| ----------------- | --------------------------------------------------- | ------------ | ---------------------------------------------------- |
+| `value`           | `string`                                            | —            | Controlled OTP value                                 |
+| `onChange`        | `(value: string) => void`                           | —            | Value change handler                                 |
+| `length`          | `number`                                            | `6`          | Number of digits                                     |
+| `type`            | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`  | Input character format                               |
+| `autoCapitalize`  | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`     | Auto capitalization                                  |
+| `variant`         | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`      | Built-in UI style preset                             |
+| `autoFocus`       | `boolean`                                           | `false`      | Focus hidden input on mount                          |
+| `disabled`        | `boolean`                                           | `false`      | Disable input                                        |
+| `secureTextEntry` | `boolean`                                           | `false`      | Mask digits                                          |
+| `maskChar`        | `string`                                            | `'•'`        | Character shown when masking                         |
+| `onComplete`      | `(value: string) => void`                           | —            | Fired when all digits are entered                    |
+| `blurOnComplete`  | `boolean`                                           | `false`      | Automatically blur input / hide keyboard on complete |
+| `clearOnError`    | `boolean`                                           | `false`      | Automatically clear input when error becomes true    |
+| `shakeOnError`    | `boolean`                                           | `false`      | Smooth shake animation when error becomes true       |
+| `slotTapBehavior` | `'truncate' \| 'focus'`                             | `'truncate'` | Behavior when tapping a filled slot                  |
+| `error`           | `boolean`                                           | `false`      | Error state                                          |
+| `errorMessage`    | `string`                                            | —            | Error text below input                               |
+| `styles`          | `Partial<PinTheme>`                                 | —            | Local theme override                                 |
+| `hapticFeedback`  | `boolean`                                           | `false`      | Native vibration on complete                         |
+| `onHaptic`        | `(type: 'complete' \| 'change' \| 'error') => void` | —            | Custom haptic callback (e.g. expo-haptics)           |
+| `testID`          | `string`                                            | —            | Root test id                                         |
 
 Ref API: `focus()`, `blur()`, `clear()`.
 
@@ -147,10 +188,10 @@ Ref API: `focus()`, `blur()`, `clear()`.
 
 When an OTP SMS arrives, iOS and Android can show the code **above the keyboard** so the user can fill it with one tap. This library uses a single hidden `TextInput` with the platform autofill hints already configured:
 
-| Platform | Props |
-| --- | --- |
-| iOS | `textContentType="oneTimeCode"`, `autoComplete="one-time-code"` |
-| Android | `autoComplete="sms-otp"`, `importantForAutofill="yes"` |
+| Platform | Props                                                           |
+| -------- | --------------------------------------------------------------- |
+| iOS      | `textContentType="oneTimeCode"`, `autoComplete="one-time-code"` |
+| Android  | `autoComplete="sms-otp"`, `importantForAutofill="yes"`          |
 
 **Tips for reliable autofill**
 
@@ -161,41 +202,43 @@ When an OTP SMS arrives, iOS and Android can show the code **above the keyboard*
 
 Pasting or autofill fills all digits at once and triggers `onComplete` when the PIN is full.
 
-## Focus behavior
-
-Slot highlight and the caret stick follow the hidden input focus state. When the input blurs (switching fields, calling `ref.blur()`, or dismissing the keyboard), focused slot styling is cleared. `focusIndex` is kept so editing resumes at the correct slot when focused again.
-
 ## PinConfirm props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `value` | `string` | — | Controlled PIN value |
-| `onChange` | `(value: string) => void` | — | Value change handler |
-| `length` | `number` | `6` | Number of digits |
-| `autoFocus` | `boolean` | `false` | Focus input on mount |
-| `disabled` | `boolean` | `false` | Disable input |
-| `secureTextEntry` | `boolean` | `true` | Mask digits |
-| `maskChar` | `string` | `'•'` | Character shown when masking |
-| `onComplete` | `(value: string) => void` | — | Fired when all digits are entered |
-| `error` | `boolean` | `false` | Error state (parent-controlled) |
-| `errorMessage` | `string` | — | Error text below input |
-| `label` | `string` | — | Optional label above input |
-| `hapticFeedback` | `boolean` | `false` | Vibrate on complete |
-| `styles` | `Partial<PinTheme>` | — | Local theme override |
-| `testID` | `string` | `'pin-confirm'` | Root test id |
+| Prop              | Type                                                | Default         | Description                       |
+| ----------------- | --------------------------------------------------- | --------------- | --------------------------------- |
+| `value`           | `string`                                            | —               | Controlled PIN value              |
+| `onChange`        | `(value: string) => void`                           | —               | Value change handler              |
+| `length`          | `number`                                            | `6`             | Number of digits                  |
+| `type`            | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`     | Character type                    |
+| `autoCapitalize`  | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`        | Text capitalization               |
+| `variant`         | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`         | Preset variant                    |
+| `autoFocus`       | `boolean`                                           | `false`         | Focus input on mount              |
+| `disabled`        | `boolean`                                           | `false`         | Disable input                     |
+| `secureTextEntry` | `boolean`                                           | `true`          | Mask digits                       |
+| `maskChar`        | `string`                                            | `'•'`           | Character shown when masking      |
+| `onComplete`      | `(value: string) => void`                           | —               | Fired when all digits are entered |
+| `blurOnComplete`  | `boolean`                                           | `false`         | Auto-dismiss keyboard on complete |
+| `clearOnError`    | `boolean`                                           | `false`         | Auto-clear input on error         |
+| `shakeOnError`    | `boolean`                                           | `false`         | Shake animation on error          |
+| `error`           | `boolean`                                           | `false`         | Error state (parent-controlled)   |
+| `errorMessage`    | `string`                                            | —               | Error text below input            |
+| `label`           | `string`                                            | —               | Optional label above input        |
+| `labelStyle`      | `StyleProp<TextStyle>`                              | —               | Custom style for label            |
+| `containerStyle`  | `StyleProp<ViewStyle>`                              | —               | Custom style for outer wrapper    |
+| `hapticFeedback`  | `boolean`                                           | `false`         | Vibrate on complete               |
+| `onHaptic`        | `(type: 'complete' \| 'change' \| 'error') => void` | —               | Custom haptic callback            |
+| `styles`          | `Partial<PinTheme>`                                 | —               | Local theme override              |
+| `testID`          | `string`                                            | `'pin-confirm'` | Root test id                      |
 
 ## Architecture
 
 ```
 src/
-├── domain/pin/              # validation, focus logic
-├── application/pin-input/   # hooks, utility helpers, context
-│   ├── hooks/               # usePinInput, usePinInputController
-│   ├── utility/             # pinInputActions, focusTextInput, triggerHaptic
-│   └── context/             # PinInputContext
-├── presentation/theme/      # createTheme, PinThemeProvider
-├── presentation/pin-input/  # PinInput, headless primitives
-└── presentation/pin-confirm/# PinConfirm
+├── domain/pin/              # validation, character rules, focus logic
+├── application/pin-input/   # hooks (usePinInput, usePinInputController), actions, context
+├── presentation/theme/      # createTheme, PinThemeProvider, mergePinTheme
+├── presentation/pin-input/  # PinInput, PinHiddenInput, PinInputDefaultView, headless primitives
+└── presentation/pin-confirm/# PinConfirm (forwardRef, label, shake animation)
 ```
 
 ## Development
