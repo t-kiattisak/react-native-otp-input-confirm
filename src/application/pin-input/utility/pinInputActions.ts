@@ -1,11 +1,20 @@
 import { getActiveFocusIndex } from '../../../domain/pin/pinFocus';
 import { isPinComplete, sanitizePinInput } from '../../../domain/pin/pinRules';
-import type { PinLength, PinValue } from '../../../domain/pin/types';
+import type {
+  AutoCapitalizeType,
+  PinLength,
+  PinType,
+  PinValue,
+} from '../../../domain/pin/types';
+
+export type SlotTapBehavior = 'truncate' | 'focus';
 
 type PinInputActionParams = {
   value: PinValue;
   focusIndex: number;
   length: PinLength;
+  type?: PinType;
+  autoCapitalize?: AutoCapitalizeType;
   disabled?: boolean;
   onChange: (value: PinValue) => void;
   onComplete?: (value: PinValue) => void;
@@ -44,6 +53,8 @@ export function applyPinChangeText(
     value,
     focusIndex,
     length,
+    type = 'numeric',
+    autoCapitalize = 'none',
     disabled,
     onChange,
     onComplete,
@@ -53,7 +64,7 @@ export function applyPinChangeText(
     return null;
   }
 
-  const sanitized = sanitizePinInput(text, length);
+  const sanitized = sanitizePinInput(text, length, type, autoCapitalize);
 
   if (sanitized === value) {
     return getActiveFocusIndex(value, length);
@@ -82,7 +93,7 @@ export function applyPinChangeText(
   ) {
     const digit = sanitized[focusIndex] ?? sanitized[value.length];
 
-    if (digit && /\d/.test(digit)) {
+    if (digit) {
       const nextValue = insertDigitAtFocus(value, digit, focusIndex, length);
       return commitValue(nextValue, length, onChange, onComplete);
     }
@@ -119,14 +130,18 @@ export type SlotPressResult = {
 export function applySlotPress(
   index: number,
   value: PinValue,
-  disabled?: boolean
+  disabled?: boolean,
+  slotTapBehavior: SlotTapBehavior = 'truncate'
 ): SlotPressResult | null {
   if (disabled) {
     return null;
   }
 
   const nextFocusIndex = Math.min(index, value.length);
-  const nextValue = index < value.length ? value.slice(0, index) : value;
+  const nextValue =
+    slotTapBehavior === 'truncate' && index < value.length
+      ? value.slice(0, index)
+      : value;
 
   return { nextValue, nextFocusIndex };
 }

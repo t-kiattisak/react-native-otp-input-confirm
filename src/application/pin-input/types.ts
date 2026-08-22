@@ -1,10 +1,17 @@
 import type { RefObject } from 'react';
-import type { PinLength, PinValue } from '../../domain/pin/types';
+import type {
+  AutoCapitalizeType,
+  PinLength,
+  PinType,
+  PinValue,
+} from '../../domain/pin/types';
 import type { PinTextInputRef } from './utility/focusTextInput';
 
 export type PinInputContextValue = {
   value: PinValue;
   length: PinLength;
+  type: PinType;
+  autoCapitalize: AutoCapitalizeType;
   focusIndex: number;
   isInputFocused: boolean;
   disabled: boolean;

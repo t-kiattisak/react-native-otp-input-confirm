@@ -91,4 +91,26 @@ describe('pinInputActions', () => {
     expect(onChange).toHaveBeenCalledWith('122');
     expect(nextFocusIndex).toBe(3);
   });
+
+  it('supports alphanumeric inputs with autoCapitalize="characters"', () => {
+    const onChange = jest.fn();
+    const nextFocusIndex = applyPinChangeText('ab-12', {
+      value: '',
+      focusIndex: 0,
+      length: 6,
+      type: 'alphanumeric',
+      autoCapitalize: 'characters',
+      onChange,
+    });
+
+    expect(onChange).toHaveBeenCalledWith('AB12');
+    expect(nextFocusIndex).toBe(4);
+  });
+
+  it('keeps full value when slotTapBehavior is "focus"', () => {
+    expect(applySlotPress(1, '32332', false, 'focus')).toEqual({
+      nextValue: '32332',
+      nextFocusIndex: 1,
+    });
+  });
 });
