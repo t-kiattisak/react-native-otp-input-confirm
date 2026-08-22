@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native';
 import type { PinTheme, PinThemeOverrides } from './types';
 
 function mergeStyle<T extends Record<string, unknown>>(
@@ -8,7 +9,11 @@ function mergeStyle<T extends Record<string, unknown>>(
     return { ...base };
   }
 
-  return { ...base, ...override };
+  const flattenedBase = (StyleSheet.flatten(base) || base) as T;
+  const flattenedOverride = (StyleSheet.flatten(override) ||
+    override) as Partial<T>;
+
+  return { ...flattenedBase, ...flattenedOverride };
 }
 
 export function mergePinTheme(
