@@ -12,6 +12,8 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       value,
       onChange,
       length = 6,
+      type = 'numeric',
+      autoCapitalize = 'none',
       autoFocus = false,
       disabled = false,
       secureTextEntry = false,
@@ -21,7 +23,13 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       error = false,
       errorMessage,
       styles: styleOverrides,
+      variant = 'box',
       hapticFeedback = false,
+      onHaptic,
+      blurOnComplete = false,
+      clearOnError = false,
+      shakeOnError = false,
+      slotTapBehavior = 'truncate',
       accessibilityLabel,
       children,
     },
@@ -31,10 +39,17 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       value,
       onChange,
       length,
+      type,
+      autoCapitalize,
       autoFocus,
       disabled,
       onComplete,
       hapticFeedback,
+      onHaptic,
+      blurOnComplete,
+      clearOnError,
+      error,
+      slotTapBehavior,
     });
 
     useImperativeHandle(
@@ -60,8 +75,10 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
           {children ?? (
             <PinInputDefaultView
               styles={styleOverrides}
+              variant={variant}
               error={error}
               errorMessage={errorMessage}
+              shakeOnError={shakeOnError}
               accessibilityLabel={accessibilityLabel}
             />
           )}

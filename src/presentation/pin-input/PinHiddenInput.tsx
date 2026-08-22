@@ -10,6 +10,8 @@ export function PinHiddenInput({
   const {
     value,
     length,
+    type,
+    autoCapitalize,
     disabled,
     secureTextEntry,
     inputRef,
@@ -27,7 +29,8 @@ export function PinHiddenInput({
       onKeyPress={handleKeyPress}
       onFocus={handleInputFocus}
       onBlur={handleInputBlur}
-      keyboardType="number-pad"
+      keyboardType={type === 'numeric' ? 'number-pad' : 'default'}
+      autoCapitalize={autoCapitalize}
       maxLength={length}
       caretHidden
       editable={!disabled}

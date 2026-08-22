@@ -1,6 +1,15 @@
 import type { ReactNode } from 'react';
-import type { PinLength, PinValue } from '../../domain/pin/types';
+import type {
+  AutoCapitalizeType,
+  PinLength,
+  PinType,
+  PinValue,
+} from '../../domain/pin/types';
+import type { HapticType } from '../../application/pin-input/hooks/usePinInputController';
+import type { SlotTapBehavior } from '../../application/pin-input/utility/pinInputActions';
 import type { PinThemeOverrides } from '../theme/types';
+
+export type PinVariant = 'box' | 'underline' | 'rounded' | 'circle';
 
 export type PinInputRef = {
   focus: () => void;
@@ -12,6 +21,8 @@ export type PinInputBaseProps = {
   value: PinValue;
   onChange: (value: PinValue) => void;
   length?: PinLength;
+  type?: PinType;
+  autoCapitalize?: AutoCapitalizeType;
   autoFocus?: boolean;
   disabled?: boolean;
   secureTextEntry?: boolean;
@@ -21,7 +32,13 @@ export type PinInputBaseProps = {
   error?: boolean;
   errorMessage?: string;
   styles?: PinThemeOverrides;
+  variant?: PinVariant;
   hapticFeedback?: boolean;
+  onHaptic?: (type: HapticType) => void;
+  blurOnComplete?: boolean;
+  clearOnError?: boolean;
+  shakeOnError?: boolean;
+  slotTapBehavior?: SlotTapBehavior;
   accessibilityLabel?: string;
   children?: ReactNode;
 };
