@@ -6,6 +6,7 @@ import {
   PinInput,
   PinInputDefaultView,
   PinInputPreset,
+  PinMaskedText,
   PinSlot,
   PinStick,
   PinThemeProvider,
@@ -18,6 +19,7 @@ import {
   sanitizePinInput,
   usePinInput,
   usePinInputController,
+  usePinMask,
   usePinTheme,
 } from '../index';
 
@@ -25,6 +27,7 @@ describe('react-native-otp-input-confirm exports', () => {
   it('exports public API', () => {
     expect(PinInput).toBeDefined();
     expect(PinInputPreset).toBeDefined();
+    expect(PinMaskedText).toBeDefined();
     expect(PinContainer).toBeDefined();
     expect(PinSlot).toBeDefined();
     expect(PinStick).toBeDefined();
@@ -37,6 +40,7 @@ describe('react-native-otp-input-confirm exports', () => {
     expect(mergePinTheme).toBeDefined();
     expect(usePinInput).toBeDefined();
     expect(usePinInputController).toBeDefined();
+    expect(usePinMask).toBeDefined();
     expect(sanitizePinInput).toBeDefined();
     expect(isPinComplete).toBeDefined();
     expect(getCharAt).toBeDefined();

@@ -12,6 +12,8 @@ export type PinTheme = {
   text: TextStyle;
   stick: ViewStyle;
   errorText: TextStyle;
+  visibilityToggleContainer?: ViewStyle;
+  visibilityToggleText?: TextStyle;
 };
 
 export type PinThemeOverrides = Partial<PinTheme>;

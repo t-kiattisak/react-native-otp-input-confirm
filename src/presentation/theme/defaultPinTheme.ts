@@ -54,4 +54,14 @@ export const defaultPinTheme = StyleSheet.create({
     color: '#EF4444',
     textAlign: 'center',
   },
+  visibilityToggleContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  visibilityToggleText: {
+    fontSize: 13,
+    color: '#4B5563',
+    fontWeight: '500',
+  },
 }) satisfies PinTheme;

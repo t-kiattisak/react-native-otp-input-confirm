@@ -29,6 +29,10 @@ export type PinConfirmProps = {
   disabled?: boolean;
   secureTextEntry?: boolean;
   maskChar?: string;
+  maskDelay?: number;
+  maskAnimation?: 'pop' | 'fade' | 'none';
+  showVisibilityToggle?: boolean;
+  onToggleSecure?: (isSecure: boolean) => void;
   onComplete?: (value: PinValue) => void;
   error?: boolean;
   errorMessage?: string;
@@ -59,6 +63,10 @@ export const PinConfirm = forwardRef<PinInputRef, PinConfirmProps>(
       disabled = false,
       secureTextEntry = true,
       maskChar,
+      maskDelay = 0,
+      maskAnimation = 'pop',
+      showVisibilityToggle = false,
+      onToggleSecure,
       onComplete,
       error = false,
       errorMessage,
@@ -92,6 +100,10 @@ export const PinConfirm = forwardRef<PinInputRef, PinConfirmProps>(
           disabled={disabled}
           secureTextEntry={secureTextEntry}
           maskChar={maskChar}
+          maskDelay={maskDelay}
+          maskAnimation={maskAnimation}
+          showVisibilityToggle={showVisibilityToggle}
+          onToggleSecure={onToggleSecure}
           onComplete={onComplete}
           error={error}
           errorMessage={errorMessage}

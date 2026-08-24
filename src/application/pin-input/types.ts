@@ -17,6 +17,10 @@ export type PinInputContextValue = {
   disabled: boolean;
   secureTextEntry: boolean;
   maskChar: string;
+  maskDelay: number;
+  maskAnimation: 'pop' | 'fade' | 'none';
+  unmaskedIndex: number | null;
+  toggleSecure: () => void;
   inputRef: RefObject<PinTextInputRef | null>;
   handleChangeText: (text: string) => void;
   handleKeyPress: (event: { nativeEvent: { key: string } }) => void;

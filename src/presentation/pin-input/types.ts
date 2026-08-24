@@ -27,6 +27,10 @@ export type PinInputBaseProps = {
   disabled?: boolean;
   secureTextEntry?: boolean;
   maskChar?: string;
+  maskDelay?: number;
+  maskAnimation?: 'pop' | 'fade' | 'none';
+  showVisibilityToggle?: boolean;
+  onToggleSecure?: (isSecure: boolean) => void;
   onComplete?: (value: PinValue) => void;
   testID?: string;
   error?: boolean;

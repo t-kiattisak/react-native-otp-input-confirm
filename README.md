@@ -156,31 +156,53 @@ const [error, setError] = useState(false);
 // confirmRef.current?.focus();
 ```
 
+## Cool Masking & Delayed Secure Text Entry
+
+Support for iOS-style delayed masking (shows the typed digit briefly before smoothly morphing into the mask dot), bounce/pop animations, custom mask characters, and show/hide visibility toggle:
+
+```tsx
+<PinInput
+  value={pin}
+  onChange={setPin}
+  length={6}
+  secureTextEntry
+  maskChar="●" // '•' | '●' | '✦' | '*' | '■'
+  maskDelay={600} // Delay in ms before masking (0 for immediate)
+  maskAnimation="pop" // 'pop' | 'fade' | 'none'
+  showVisibilityToggle // Shows interactive 'Show PIN' / 'Hide PIN' button
+  variant="rounded"
+/>
+```
+
 ## PinInput props
 
-| Prop              | Type                                                | Default      | Description                                          |
-| ----------------- | --------------------------------------------------- | ------------ | ---------------------------------------------------- |
-| `value`           | `string`                                            | —            | Controlled OTP value                                 |
-| `onChange`        | `(value: string) => void`                           | —            | Value change handler                                 |
-| `length`          | `number`                                            | `6`          | Number of digits                                     |
-| `type`            | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`  | Input character format                               |
-| `autoCapitalize`  | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`     | Auto capitalization                                  |
-| `variant`         | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`      | Built-in UI style preset                             |
-| `autoFocus`       | `boolean`                                           | `false`      | Focus hidden input on mount                          |
-| `disabled`        | `boolean`                                           | `false`      | Disable input                                        |
-| `secureTextEntry` | `boolean`                                           | `false`      | Mask digits                                          |
-| `maskChar`        | `string`                                            | `'•'`        | Character shown when masking                         |
-| `onComplete`      | `(value: string) => void`                           | —            | Fired when all digits are entered                    |
-| `blurOnComplete`  | `boolean`                                           | `false`      | Automatically blur input / hide keyboard on complete |
-| `clearOnError`    | `boolean`                                           | `false`      | Automatically clear input when error becomes true    |
-| `shakeOnError`    | `boolean`                                           | `false`      | Smooth shake animation when error becomes true       |
-| `slotTapBehavior` | `'truncate' \| 'focus'`                             | `'truncate'` | Behavior when tapping a filled slot                  |
-| `error`           | `boolean`                                           | `false`      | Error state                                          |
-| `errorMessage`    | `string`                                            | —            | Error text below input                               |
-| `styles`          | `Partial<PinTheme>`                                 | —            | Local theme override                                 |
-| `hapticFeedback`  | `boolean`                                           | `false`      | Native vibration on complete                         |
-| `onHaptic`        | `(type: 'complete' \| 'change' \| 'error') => void` | —            | Custom haptic callback (e.g. expo-haptics)           |
-| `testID`          | `string`                                            | —            | Root test id                                         |
+| Prop                   | Type                                                | Default      | Description                                          |
+| ---------------------- | --------------------------------------------------- | ------------ | ---------------------------------------------------- |
+| `value`                | `string`                                            | —            | Controlled OTP value                                 |
+| `onChange`             | `(value: string) => void`                           | —            | Value change handler                                 |
+| `length`               | `number`                                            | `6`          | Number of digits                                     |
+| `type`                 | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`  | Input character format                               |
+| `autoCapitalize`       | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`     | Auto capitalization                                  |
+| `variant`              | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`      | Built-in UI style preset                             |
+| `autoFocus`            | `boolean`                                           | `false`      | Focus hidden input on mount                          |
+| `disabled`             | `boolean`                                           | `false`      | Disable input                                        |
+| `secureTextEntry`      | `boolean`                                           | `false`      | Mask digits                                          |
+| `maskChar`             | `string`                                            | `'•'`        | Character shown when masking                         |
+| `maskDelay`            | `number`                                            | `0`          | Delay in ms before masking typed digit (iOS style)   |
+| `maskAnimation`        | `'pop' \| 'fade' \| 'none'`                         | `'pop'`      | Transition animation when masking                    |
+| `showVisibilityToggle` | `boolean`                                           | `false`      | Render interactive show/hide PIN toggle button       |
+| `onToggleSecure`       | `(isSecure: boolean) => void`                       | —            | Callback when secure visibility state changes        |
+| `onComplete`           | `(value: string) => void`                           | —            | Fired when all digits are entered                    |
+| `blurOnComplete`       | `boolean`                                           | `false`      | Automatically blur input / hide keyboard on complete |
+| `clearOnError`         | `boolean`                                           | `false`      | Automatically clear input when error becomes true    |
+| `shakeOnError`         | `boolean`                                           | `false`      | Smooth shake animation when error becomes true       |
+| `slotTapBehavior`      | `'truncate' \| 'focus'`                             | `'truncate'` | Behavior when tapping a filled slot                  |
+| `error`                | `boolean`                                           | `false`      | Error state                                          |
+| `errorMessage`         | `string`                                            | —            | Error text below input                               |
+| `styles`               | `Partial<PinTheme>`                                 | —            | Local theme override                                 |
+| `hapticFeedback`       | `boolean`                                           | `false`      | Native vibration on complete                         |
+| `onHaptic`             | `(type: 'complete' \| 'change' \| 'error') => void` | —            | Custom haptic callback (e.g. expo-haptics)           |
+| `testID`               | `string`                                            | —            | Root test id                                         |
 
 Ref API: `focus()`, `blur()`, `clear()`.
 
@@ -204,31 +226,35 @@ Pasting or autofill fills all digits at once and triggers `onComplete` when the 
 
 ## PinConfirm props
 
-| Prop              | Type                                                | Default         | Description                       |
-| ----------------- | --------------------------------------------------- | --------------- | --------------------------------- |
-| `value`           | `string`                                            | —               | Controlled PIN value              |
-| `onChange`        | `(value: string) => void`                           | —               | Value change handler              |
-| `length`          | `number`                                            | `6`             | Number of digits                  |
-| `type`            | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`     | Character type                    |
-| `autoCapitalize`  | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`        | Text capitalization               |
-| `variant`         | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`         | Preset variant                    |
-| `autoFocus`       | `boolean`                                           | `false`         | Focus input on mount              |
-| `disabled`        | `boolean`                                           | `false`         | Disable input                     |
-| `secureTextEntry` | `boolean`                                           | `true`          | Mask digits                       |
-| `maskChar`        | `string`                                            | `'•'`           | Character shown when masking      |
-| `onComplete`      | `(value: string) => void`                           | —               | Fired when all digits are entered |
-| `blurOnComplete`  | `boolean`                                           | `false`         | Auto-dismiss keyboard on complete |
-| `clearOnError`    | `boolean`                                           | `false`         | Auto-clear input on error         |
-| `shakeOnError`    | `boolean`                                           | `false`         | Shake animation on error          |
-| `error`           | `boolean`                                           | `false`         | Error state (parent-controlled)   |
-| `errorMessage`    | `string`                                            | —               | Error text below input            |
-| `label`           | `string`                                            | —               | Optional label above input        |
-| `labelStyle`      | `StyleProp<TextStyle>`                              | —               | Custom style for label            |
-| `containerStyle`  | `StyleProp<ViewStyle>`                              | —               | Custom style for outer wrapper    |
-| `hapticFeedback`  | `boolean`                                           | `false`         | Vibrate on complete               |
-| `onHaptic`        | `(type: 'complete' \| 'change' \| 'error') => void` | —               | Custom haptic callback            |
-| `styles`          | `Partial<PinTheme>`                                 | —               | Local theme override              |
-| `testID`          | `string`                                            | `'pin-confirm'` | Root test id                      |
+| Prop                   | Type                                                | Default         | Description                                        |
+| ---------------------- | --------------------------------------------------- | --------------- | -------------------------------------------------- |
+| `value`                | `string`                                            | —               | Controlled PIN value                               |
+| `onChange`             | `(value: string) => void`                           | —               | Value change handler                               |
+| `length`               | `number`                                            | `6`             | Number of digits                                   |
+| `type`                 | `'numeric' \| 'alphanumeric' \| 'alpha'`            | `'numeric'`     | Character type                                     |
+| `autoCapitalize`       | `'none' \| 'characters' \| 'words' \| 'sentences'`  | `'none'`        | Text capitalization                                |
+| `variant`              | `'box' \| 'underline' \| 'rounded' \| 'circle'`     | `'box'`         | Preset variant                                     |
+| `autoFocus`            | `boolean`                                           | `false`         | Focus input on mount                               |
+| `disabled`             | `boolean`                                           | `false`         | Disable input                                      |
+| `secureTextEntry`      | `boolean`                                           | `true`          | Mask digits                                        |
+| `maskChar`             | `string`                                            | `'•'`           | Character shown when masking                       |
+| `maskDelay`            | `number`                                            | `0`             | Delay in ms before masking typed digit (iOS style) |
+| `maskAnimation`        | `'pop' \| 'fade' \| 'none'`                         | `'pop'`         | Transition animation when masking                  |
+| `showVisibilityToggle` | `boolean`                                           | `false`         | Render interactive show/hide PIN toggle button     |
+| `onToggleSecure`       | `(isSecure: boolean) => void`                       | —               | Callback when secure visibility state changes      |
+| `onComplete`           | `(value: string) => void`                           | —               | Fired when all digits are entered                  |
+| `blurOnComplete`       | `boolean`                                           | `false`         | Auto-dismiss keyboard on complete                  |
+| `clearOnError`         | `boolean`                                           | `false`         | Auto-clear input on error                          |
+| `shakeOnError`         | `boolean`                                           | `false`         | Shake animation on error                           |
+| `error`                | `boolean`                                           | `false`         | Error state (parent-controlled)                    |
+| `errorMessage`         | `string`                                            | —               | Error text below input                             |
+| `label`                | `string`                                            | —               | Optional label above input                         |
+| `labelStyle`           | `StyleProp<TextStyle>`                              | —               | Custom style for label                             |
+| `containerStyle`       | `StyleProp<ViewStyle>`                              | —               | Custom style for outer wrapper                     |
+| `hapticFeedback`       | `boolean`                                           | `false`         | Vibrate on complete                                |
+| `onHaptic`             | `(type: 'complete' \| 'change' \| 'error') => void` | —               | Custom haptic callback                             |
+| `styles`               | `Partial<PinTheme>`                                 | —               | Local theme override                               |
+| `testID`               | `string`                                            | `'pin-confirm'` | Root test id                                       |
 
 ## Architecture
 

@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle } from 'react';
 import { View } from 'react-native';
 import { PinInputContext } from '../../application/pin-input/context/PinInputContext';
 import { usePinInputController } from '../../application/pin-input/hooks/usePinInputController';
+import { usePinMask } from '../../application/pin-input/hooks/usePinMask';
 import { PinHiddenInput } from './PinHiddenInput';
 import { PinInputDefaultView } from './PinInputDefaultView';
 import type { PinInputProps, PinInputRef } from './types';
@@ -18,6 +19,10 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       disabled = false,
       secureTextEntry = false,
       maskChar = '•',
+      maskDelay = 0,
+      maskAnimation = 'pop',
+      showVisibilityToggle = false,
+      onToggleSecure,
       onComplete,
       testID,
       error = false,
@@ -52,6 +57,13 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
       slotTapBehavior,
     });
 
+    const { isSecure, unmaskedIndex, toggleSecure } = usePinMask({
+      value,
+      secureTextEntry,
+      maskDelay,
+      onToggleSecure,
+    });
+
     useImperativeHandle(
       ref,
       () => ({
@@ -64,8 +76,12 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
 
     const contextValue = {
       ...controller,
-      secureTextEntry,
+      secureTextEntry: isSecure,
       maskChar,
+      maskDelay,
+      maskAnimation,
+      unmaskedIndex,
+      toggleSecure,
     };
 
     return (
@@ -79,6 +95,7 @@ export const PinInput = forwardRef<PinInputRef, PinInputProps>(
               error={error}
               errorMessage={errorMessage}
               shakeOnError={shakeOnError}
+              showVisibilityToggle={showVisibilityToggle}
               accessibilityLabel={accessibilityLabel}
             />
           )}

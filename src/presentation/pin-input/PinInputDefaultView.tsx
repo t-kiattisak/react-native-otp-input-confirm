@@ -1,8 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import { usePinInput } from '../../application/pin-input/hooks/usePinInput';
 import { usePinTheme } from '../theme/usePinTheme';
 import { PinContainer } from './PinContainer';
+import { PinMaskedText } from './PinMaskedText';
 import { PinSlot } from './PinSlot';
 import { PinStick } from './PinStick';
 import type { PinVariant } from './types';
@@ -14,6 +22,7 @@ type PinInputDefaultViewProps = {
   error?: boolean;
   errorMessage?: string;
   shakeOnError?: boolean;
+  showVisibilityToggle?: boolean;
   accessibilityLabel?: string;
 };
 
@@ -39,10 +48,20 @@ export function PinInputDefaultView({
   error = false,
   errorMessage,
   shakeOnError = false,
+  showVisibilityToggle = false,
   accessibilityLabel = 'OTP input',
 }: PinInputDefaultViewProps) {
   const theme = usePinTheme(styleOverrides);
-  const { length, disabled, secureTextEntry, maskChar, value } = usePinInput();
+  const {
+    length,
+    disabled,
+    secureTextEntry,
+    maskChar,
+    maskAnimation,
+    unmaskedIndex,
+    toggleSecure,
+    value,
+  } = usePinInput();
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const prevErrorRef = useRef(error);
 
@@ -98,32 +117,52 @@ export function PinInputDefaultView({
       <PinContainer style={theme.container} accessibilityElementsHidden>
         {Array.from({ length }, (_, index) => (
           <PinSlot key={index} index={index}>
-            {({ isFocused, isFilled, valueInside }) => (
-              <View
-                style={[
-                  theme.slot,
-                  selectedVariantStyle,
-                  isFilled && theme.slotFilled,
-                  isFocused && !error && theme.slotFocused,
-                  error && (isFocused || isFilled) && theme.slotError,
-                  disabled && theme.slotDisabled,
-                ]}
-              >
-                <View style={theme.slotContent}>
-                  {valueInside !== '' ? (
-                    <Text style={theme.text}>
-                      {secureTextEntry ? maskChar : valueInside}
-                    </Text>
-                  ) : null}
-                  {isFocused && !disabled && valueInside === '' ? (
-                    <PinStick style={theme.stick} />
-                  ) : null}
+            {({ isFocused, isFilled, valueInside }) => {
+              const isSlotMasked = secureTextEntry && unmaskedIndex !== index;
+
+              return (
+                <View
+                  style={[
+                    theme.slot,
+                    selectedVariantStyle,
+                    isFilled && theme.slotFilled,
+                    isFocused && !error && theme.slotFocused,
+                    error && (isFocused || isFilled) && theme.slotError,
+                    disabled && theme.slotDisabled,
+                  ]}
+                >
+                  <View style={theme.slotContent}>
+                    {valueInside !== '' ? (
+                      <PinMaskedText
+                        char={valueInside}
+                        maskChar={maskChar}
+                        isMasked={isSlotMasked}
+                        animation={maskAnimation}
+                        style={theme.text}
+                      />
+                    ) : null}
+                    {isFocused && !disabled && valueInside === '' ? (
+                      <PinStick style={theme.stick} />
+                    ) : null}
+                  </View>
                 </View>
-              </View>
-            )}
+              );
+            }}
           </PinSlot>
         ))}
       </PinContainer>
+      {showVisibilityToggle ? (
+        <Pressable
+          style={theme.visibilityToggleContainer}
+          onPress={toggleSecure}
+          accessibilityRole="button"
+          accessibilityLabel={secureTextEntry ? 'Show PIN' : 'Hide PIN'}
+        >
+          <Text style={theme.visibilityToggleText}>
+            {secureTextEntry ? '👁️ Show PIN' : '🙈 Hide PIN'}
+          </Text>
+        </Pressable>
+      ) : null}
       {error && errorMessage ? (
         <Text
           style={theme.errorText}

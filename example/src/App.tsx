@@ -21,7 +21,8 @@ import {
   type PinVariant,
 } from 'react-native-otp-input-confirm';
 
-type DemoTab = 'default' | 'variants' | 'alphanumeric' | 'headless' | 'confirm';
+type DemoTab =
+  'default' | 'variants' | 'masking' | 'alphanumeric' | 'headless' | 'confirm';
 
 const appTheme = createTheme({
   slotFocused: { borderColor: '#2563EB' },
@@ -33,6 +34,12 @@ export default function App() {
   const [value, setValue] = useState('');
   const [variant, setVariant] = useState<PinVariant>('box');
   const [alphaValue, setAlphaValue] = useState('');
+  const [maskValue, setMaskValue] = useState('');
+  const [maskChar, setMaskChar] = useState('•');
+  const [maskAnimation, setMaskAnimation] = useState<'pop' | 'fade' | 'none'>(
+    'pop'
+  );
+  const [maskDelay, setMaskDelay] = useState(600);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const confirmRef = useRef<PinInputRef>(null);
@@ -51,6 +58,7 @@ export default function App() {
               [
                 ['default', 'Default'],
                 ['variants', 'Variants'],
+                ['masking', '🔒 Cool Masking'],
                 ['alphanumeric', 'Alphanumeric'],
                 ['headless', 'Headless'],
                 ['confirm', 'Confirm (Ref & Shake)'],
@@ -124,6 +132,114 @@ export default function App() {
             </>
           ) : null}
 
+          {tab === 'masking' ? (
+            <View style={styles.maskingDemo}>
+              <Text style={styles.subtext}>
+                iOS-style delayed mask with smooth pop animation and visibility
+                toggle:
+              </Text>
+
+              {/* Mask Char Selector */}
+              <View style={styles.optionGroup}>
+                <Text style={styles.optionLabel}>Mask Character:</Text>
+                <View style={styles.selectorRow}>
+                  {(['•', '●', '✦', '*', '■'] as const).map((char) => (
+                    <Pressable
+                      key={char}
+                      style={[
+                        styles.optionButton,
+                        maskChar === char && styles.optionButtonActive,
+                      ]}
+                      onPress={() => setMaskChar(char)}
+                    >
+                      <Text
+                        style={[
+                          styles.optionButtonText,
+                          maskChar === char && styles.optionButtonTextActive,
+                        ]}
+                      >
+                        {char}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {/* Animation Selector */}
+              <View style={styles.optionGroup}>
+                <Text style={styles.optionLabel}>Transition Animation:</Text>
+                <View style={styles.selectorRow}>
+                  {(['pop', 'fade', 'none'] as const).map((anim) => (
+                    <Pressable
+                      key={anim}
+                      style={[
+                        styles.optionButton,
+                        maskAnimation === anim && styles.optionButtonActive,
+                      ]}
+                      onPress={() => setMaskAnimation(anim)}
+                    >
+                      <Text
+                        style={[
+                          styles.optionButtonText,
+                          maskAnimation === anim &&
+                            styles.optionButtonTextActive,
+                        ]}
+                      >
+                        {anim}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {/* Delay Selector */}
+              <View style={styles.optionGroup}>
+                <Text style={styles.optionLabel}>Mask Delay:</Text>
+                <View style={styles.selectorRow}>
+                  {(
+                    [
+                      [0, 'Instant (0ms)'],
+                      [500, '500ms'],
+                      [800, '800ms'],
+                    ] as const
+                  ).map(([ms, label]) => (
+                    <Pressable
+                      key={ms}
+                      style={[
+                        styles.optionButton,
+                        maskDelay === ms && styles.optionButtonActive,
+                      ]}
+                      onPress={() => setMaskDelay(ms)}
+                    >
+                      <Text
+                        style={[
+                          styles.optionButtonText,
+                          maskDelay === ms && styles.optionButtonTextActive,
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <PinInput
+                value={maskValue}
+                onChange={setMaskValue}
+                length={6}
+                secureTextEntry
+                maskChar={maskChar}
+                maskDelay={maskDelay}
+                maskAnimation={maskAnimation}
+                showVisibilityToggle
+                variant="rounded"
+                testID="otp-masking"
+              />
+              <Text style={styles.value}>Raw Value: {maskValue || '—'}</Text>
+            </View>
+          ) : null}
+
           {tab === 'alphanumeric' ? (
             <>
               <Text style={styles.subtext}>
@@ -185,7 +301,9 @@ export default function App() {
                   setPinError(false);
                 }}
                 length={6}
-                maskChar="*"
+                maskChar="●"
+                maskDelay={500}
+                showVisibilityToggle
                 label="Enter Security PIN (Try '123456')"
                 autoFocus
                 error={pinError}
@@ -243,6 +361,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
+    maxWidth: 360,
   },
   tabs: {
     flexDirection: 'row',
@@ -288,6 +407,43 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   variantButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  maskingDemo: {
+    alignItems: 'center',
+    gap: 16,
+    width: '100%',
+  },
+  optionGroup: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  optionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4B5563',
+  },
+  selectorRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  optionButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: '#E5E7EB',
+  },
+  optionButtonActive: {
+    backgroundColor: '#2563EB',
+  },
+  optionButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  optionButtonTextActive: {
     color: '#FFFFFF',
   },
   value: {
