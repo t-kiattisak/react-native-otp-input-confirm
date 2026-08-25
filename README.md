@@ -174,6 +174,36 @@ Support for iOS-style delayed masking (shows the typed digit briefly before smoo
 />
 ```
 
+## OTP Resend Timer & Countdown Hook
+
+Built-in countdown cooldown and resend button:
+
+```tsx
+import {
+  PinInput,
+  OtpResendTimer,
+  useOtpCountdown,
+} from 'react-native-otp-input-confirm';
+
+// 1. Ready-made UI component
+<OtpResendTimer
+  duration={60}
+  label="Resend code in"
+  resendText="Resend Code"
+  onResend={async () => {
+    await sendNewOtp();
+  }}
+/>;
+
+// 2. Or headless hook
+const { seconds, formattedTime, isRunning, isExpired, restart } =
+  useOtpCountdown({
+    duration: 60,
+    autoStart: true,
+    onExpire: () => console.log('Expired!'),
+  });
+```
+
 ## PinInput props
 
 | Prop                   | Type                                                | Default      | Description                                          |

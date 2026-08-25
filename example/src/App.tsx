@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import {
+  OtpResendTimer,
   PinConfirm,
   PinContainer,
   PinInput,
@@ -22,7 +23,13 @@ import {
 } from 'react-native-otp-input-confirm';
 
 type DemoTab =
-  'default' | 'variants' | 'masking' | 'alphanumeric' | 'headless' | 'confirm';
+  | 'default'
+  | 'variants'
+  | 'masking'
+  | 'timer'
+  | 'alphanumeric'
+  | 'headless'
+  | 'confirm';
 
 const appTheme = createTheme({
   slotFocused: { borderColor: '#2563EB' },
@@ -40,6 +47,8 @@ export default function App() {
     'pop'
   );
   const [maskDelay, setMaskDelay] = useState(600);
+  const [timerPin, setTimerPin] = useState('');
+  const [resendStatus, setResendStatus] = useState<string>('');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const confirmRef = useRef<PinInputRef>(null);
@@ -59,6 +68,7 @@ export default function App() {
                 ['default', 'Default'],
                 ['variants', 'Variants'],
                 ['masking', '🔒 Cool Masking'],
+                ['timer', '⏳ Resend Timer'],
                 ['alphanumeric', 'Alphanumeric'],
                 ['headless', 'Headless'],
                 ['confirm', 'Confirm (Ref & Shake)'],
@@ -196,20 +206,18 @@ export default function App() {
               <View style={styles.optionGroup}>
                 <Text style={styles.optionLabel}>Mask Delay:</Text>
                 <View style={styles.selectorRow}>
-                  {(
-                    [
-                      [0, 'Instant (0ms)'],
-                      [500, '500ms'],
-                      [800, '800ms'],
-                    ] as const
-                  ).map(([ms, label]) => (
+                  {[
+                    [0, 'Instant (0ms)'],
+                    [500, '500ms'],
+                    [800, '800ms'],
+                  ].map(([ms, label]) => (
                     <Pressable
                       key={ms}
                       style={[
                         styles.optionButton,
                         maskDelay === ms && styles.optionButtonActive,
                       ]}
-                      onPress={() => setMaskDelay(ms)}
+                      onPress={() => setMaskDelay(Number(ms))}
                     >
                       <Text
                         style={[
@@ -237,6 +245,35 @@ export default function App() {
                 testID="otp-masking"
               />
               <Text style={styles.value}>Raw Value: {maskValue || '—'}</Text>
+            </View>
+          ) : null}
+
+          {tab === 'timer' ? (
+            <View style={styles.timerDemo}>
+              <Text style={styles.subtext}>
+                Complete OTP verification flow with Resend countdown cooldown:
+              </Text>
+              <PinInput
+                value={timerPin}
+                onChange={setTimerPin}
+                length={6}
+                variant="rounded"
+                onComplete={(code) =>
+                  setResendStatus(`Submitted Code: ${code}`)
+                }
+              />
+              <OtpResendTimer
+                duration={45}
+                label="Resend OTP in"
+                resendText="Resend Code"
+                onResend={() => {
+                  setTimerPin('');
+                  setResendStatus('New OTP code sent! (Simulated)');
+                }}
+              />
+              {resendStatus ? (
+                <Text style={styles.statusText}>{resendStatus}</Text>
+              ) : null}
             </View>
           ) : null}
 
@@ -413,6 +450,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
     width: '100%',
+  },
+  timerDemo: {
+    alignItems: 'center',
+    gap: 16,
+    width: '100%',
+  },
+  statusText: {
+    fontSize: 13,
+    color: '#059669',
+    fontWeight: '500',
+    marginTop: 4,
   },
   optionGroup: {
     alignItems: 'center',

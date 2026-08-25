@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  OtpResendTimer,
   PinConfirm,
   PinContainer,
   PinHiddenInput,
@@ -11,12 +12,14 @@ import {
   PinStick,
   PinThemeProvider,
   createTheme,
+  formatSecondsToTime,
   getActiveFocusIndex,
   getCharAt,
   getSlotState,
   isPinComplete,
   mergePinTheme,
   sanitizePinInput,
+  useOtpCountdown,
   usePinInput,
   usePinInputController,
   usePinMask,
@@ -34,6 +37,7 @@ describe('react-native-otp-input-confirm exports', () => {
     expect(PinHiddenInput).toBeDefined();
     expect(PinInputDefaultView).toBeDefined();
     expect(PinConfirm).toBeDefined();
+    expect(OtpResendTimer).toBeDefined();
     expect(PinThemeProvider).toBeDefined();
     expect(createTheme).toBeDefined();
     expect(usePinTheme).toBeDefined();
@@ -41,6 +45,8 @@ describe('react-native-otp-input-confirm exports', () => {
     expect(usePinInput).toBeDefined();
     expect(usePinInputController).toBeDefined();
     expect(usePinMask).toBeDefined();
+    expect(useOtpCountdown).toBeDefined();
+    expect(formatSecondsToTime).toBeDefined();
     expect(sanitizePinInput).toBeDefined();
     expect(isPinComplete).toBeDefined();
     expect(getCharAt).toBeDefined();
