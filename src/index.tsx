@@ -19,6 +19,7 @@ export { usePinInput } from './application/pin-input/hooks/usePinInput';
 export { usePinInputController } from './application/pin-input/hooks/usePinInputController';
 export { usePinMask } from './application/pin-input/hooks/usePinMask';
 export { useOtpCountdown } from './application/pin-input/hooks/useOtpCountdown';
+export { useInterval } from './application/pin-input/hooks/useInterval';
 export { formatSecondsToTime } from './application/pin-input/utility/formatTime';
 
 export {
