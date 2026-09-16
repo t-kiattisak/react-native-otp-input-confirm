@@ -15,7 +15,7 @@ Headless-friendly OTP / PIN input for React Native with theming, confirmation fl
 - `onComplete`, error state, custom haptic feedback callback (`onHaptic`), ref API, and accessibility support
 - Resend cooldown begins only after an async `onResend` succeeds; use `onResendError` for failures
 - SMS OTP keyboard autofill (iOS Security Code AutoFill / Android `sms-otp`)
-- Fully exported headless hooks and primitives (`usePinInputController`, `PinHiddenInput`, `PinInputDefaultView`)
+- Fully exported headless hooks and primitives (`usePinInputController`, `useOtpCountdown`, `useInterval`, `PinHiddenInput`, `PinInputDefaultView`)
 
 ## Installation
 

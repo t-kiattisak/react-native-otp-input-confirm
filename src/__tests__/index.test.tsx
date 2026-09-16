@@ -20,6 +20,7 @@ import {
   mergePinTheme,
   sanitizePinInput,
   useOtpCountdown,
+  useInterval,
   usePinInput,
   usePinInputController,
   usePinMask,
@@ -46,6 +47,7 @@ describe('react-native-otp-input-confirm exports', () => {
     expect(usePinInputController).toBeDefined();
     expect(usePinMask).toBeDefined();
     expect(useOtpCountdown).toBeDefined();
+    expect(useInterval).toBeDefined();
     expect(formatSecondsToTime).toBeDefined();
     expect(sanitizePinInput).toBeDefined();
     expect(isPinComplete).toBeDefined();
