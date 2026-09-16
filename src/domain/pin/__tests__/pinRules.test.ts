@@ -1,7 +1,19 @@
 import { describe, expect, it } from '@jest/globals';
-import { getCharAt, isPinComplete, sanitizePinInput } from '../pinRules';
+import {
+  getCharAt,
+  isPinComplete,
+  normalizePinLength,
+  sanitizePinInput,
+} from '../pinRules';
 
 describe('pinRules', () => {
+  it('falls back to a safe default for an invalid PIN length', () => {
+    expect(normalizePinLength(0)).toBe(6);
+    expect(normalizePinLength(-1)).toBe(6);
+    expect(normalizePinLength(4.5)).toBe(6);
+    expect(sanitizePinInput('1234567', 0)).toBe('123456');
+  });
+
   it('sanitizes non-digit characters by default (numeric mode)', () => {
     expect(sanitizePinInput('a1b2c3', 6)).toBe('123');
   });

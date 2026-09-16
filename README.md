@@ -13,6 +13,7 @@ Headless-friendly OTP / PIN input for React Native with theming, confirmation fl
 - Auto-blur on complete (`blurOnComplete`) & Auto-clear on error (`clearOnError`)
 - Tap-to-edit behavior (`slotTapBehavior="truncate" | "focus"`)
 - `onComplete`, error state, custom haptic feedback callback (`onHaptic`), ref API, and accessibility support
+- Resend cooldown begins only after an async `onResend` succeeds; use `onResendError` for failures
 - SMS OTP keyboard autofill (iOS Security Code AutoFill / Android `sms-otp`)
 - Fully exported headless hooks and primitives (`usePinInputController`, `PinHiddenInput`, `PinInputDefaultView`)
 
@@ -193,6 +194,7 @@ import {
   onResend={async () => {
     await sendNewOtp();
   }}
+  onResendError={(error) => console.warn('Could not resend OTP', error)}
 />;
 
 // 2. Or headless hook

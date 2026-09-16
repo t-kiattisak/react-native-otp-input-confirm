@@ -113,4 +113,17 @@ describe('pinInputActions', () => {
       nextFocusIndex: 1,
     });
   });
+
+  it('accepts a replacement value for a selected filled slot', () => {
+    const onChange = jest.fn();
+
+    applyPinChangeText('129456', {
+      value: '123456',
+      focusIndex: 2,
+      length: 6,
+      onChange,
+    });
+
+    expect(onChange).toHaveBeenCalledWith('129456');
+  });
 });

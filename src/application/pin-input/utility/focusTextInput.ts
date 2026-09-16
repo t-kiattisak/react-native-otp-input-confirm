@@ -37,6 +37,16 @@ export function setTextInputSelection(
     typeof input.setSelection === 'function'
   ) {
     input.setSelection(start, end);
+    return;
+  }
+
+  if (
+    input &&
+    typeof input === 'object' &&
+    'setNativeProps' in input &&
+    typeof input.setNativeProps === 'function'
+  ) {
+    input.setNativeProps({ selection: { start, end } });
   }
 }
 

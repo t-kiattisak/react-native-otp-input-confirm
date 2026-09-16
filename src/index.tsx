@@ -25,6 +25,7 @@ export {
   sanitizePinInput,
   isPinComplete,
   getCharAt,
+  normalizePinLength,
 } from './domain/pin/pinRules';
 export { getActiveFocusIndex, getSlotState } from './domain/pin/pinFocus';
 

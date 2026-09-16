@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -13,6 +14,7 @@ export type OtpResendTimerProps = {
   duration?: number;
   autoStart?: boolean;
   onResend?: () => void | Promise<void>;
+  onResendError?: (error: unknown) => void;
   label?: string;
   resendText?: string;
   containerStyle?: StyleProp<ViewStyle>;
@@ -29,6 +31,7 @@ export function OtpResendTimer({
   duration = 60,
   autoStart = true,
   onResend,
+  onResendError,
   label = 'Resend code in',
   resendText = 'Resend Code',
   containerStyle,
@@ -40,6 +43,7 @@ export function OtpResendTimer({
   disabledButtonTextStyle,
   testID = 'otp-resend-timer',
 }: OtpResendTimerProps) {
+  const [isResending, setIsResending] = useState(false);
   const { seconds, formattedTime, isRunning, isExpired, restart } =
     useOtpCountdown({
       duration,
@@ -47,9 +51,17 @@ export function OtpResendTimer({
     });
 
   const handlePressResend = async () => {
-    if (!isExpired) return;
-    restart(duration);
-    await onResend?.();
+    if (!isExpired || isResending) return;
+
+    setIsResending(true);
+    try {
+      await onResend?.();
+      restart(duration);
+    } catch (error) {
+      onResendError?.(error);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -65,14 +77,20 @@ export function OtpResendTimer({
 
       <Pressable
         onPress={handlePressResend}
-        disabled={!isExpired}
+        disabled={!isExpired || isResending}
         accessibilityRole="button"
         accessibilityLabel={resendText}
-        accessibilityState={{ disabled: !isExpired }}
+        accessibilityState={{
+          disabled: !isExpired || isResending,
+          busy: isResending,
+        }}
         style={[
           styles.button,
           buttonStyle,
-          !isExpired && [styles.buttonDisabled, disabledButtonStyle],
+          (!isExpired || isResending) && [
+            styles.buttonDisabled,
+            disabledButtonStyle,
+          ],
         ]}
         testID={`${testID}-button`}
       >
@@ -80,7 +98,10 @@ export function OtpResendTimer({
           style={[
             styles.buttonText,
             buttonTextStyle,
-            !isExpired && [styles.buttonTextDisabled, disabledButtonTextStyle],
+            (!isExpired || isResending) && [
+              styles.buttonTextDisabled,
+              disabledButtonTextStyle,
+            ],
           ]}
         >
           {resendText}
