@@ -47,6 +47,12 @@ export function useOtpCountdown({
     }
   }, []);
 
+  useEffect(() => {
+    clearTimer();
+    setSeconds(initialDuration);
+    setIsRunning(autoStart && initialDuration > 0);
+  }, [autoStart, clearTimer, initialDuration]);
+
   const stop = useCallback(() => {
     clearTimer();
     setIsRunning(false);

@@ -1,11 +1,16 @@
 import type { AutoCapitalizeType, PinLength, PinType, PinValue } from './types';
 
+export function normalizePinLength(length: PinLength, fallback = 6): PinLength {
+  return Number.isInteger(length) && length > 0 ? length : fallback;
+}
+
 export function sanitizePinInput(
   raw: string,
   length: PinLength,
   type: PinType = 'numeric',
   autoCapitalize: AutoCapitalizeType = 'none'
 ): PinValue {
+  const normalizedLength = normalizePinLength(length);
   let cleaned = raw;
 
   if (type === 'numeric') {
@@ -20,11 +25,11 @@ export function sanitizePinInput(
     cleaned = cleaned.toUpperCase();
   }
 
-  return cleaned.slice(0, length);
+  return cleaned.slice(0, normalizedLength);
 }
 
 export function isPinComplete(value: PinValue, length: PinLength): boolean {
-  return value.length === length;
+  return value.length === normalizePinLength(length);
 }
 
 export function getCharAt(value: PinValue, index: number): string {

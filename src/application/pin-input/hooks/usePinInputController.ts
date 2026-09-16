@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getActiveFocusIndex } from '../../../domain/pin/pinFocus';
+import { normalizePinLength } from '../../../domain/pin/pinRules';
 import type {
   AutoCapitalizeType,
   PinLength,
@@ -56,16 +57,17 @@ export function usePinInputController({
   error = false,
   slotTapBehavior = 'truncate',
 }: UsePinInputControllerParams) {
+  const normalizedLength = normalizePinLength(length);
   const inputRef = useRef<PinTextInputRef>(null);
   const [focusIndex, setFocusIndex] = useState(() =>
-    getActiveFocusIndex(value, length)
+    getActiveFocusIndex(value, normalizedLength)
   );
   const [isInputFocused, setIsInputFocused] = useState(false);
   const prevErrorRef = useRef(error);
 
   useEffect(() => {
-    setFocusIndex(getActiveFocusIndex(value, length));
-  }, [value, length]);
+    setFocusIndex(getActiveFocusIndex(value, normalizedLength));
+  }, [value, normalizedLength]);
 
   useEffect(() => {
     if (autoFocus && !disabled) {
@@ -144,7 +146,7 @@ export function usePinInputController({
       const nextFocusIndex = applyPinChangeText(text, {
         value,
         focusIndex,
-        length,
+        length: normalizedLength,
         type,
         autoCapitalize,
         disabled,
@@ -164,7 +166,7 @@ export function usePinInputController({
       disabled,
       focusIndex,
       handleComplete,
-      length,
+      normalizedLength,
       onChange,
       onHaptic,
       type,
@@ -181,7 +183,7 @@ export function usePinInputController({
       const nextFocusIndex = applyPinBackspace({
         value,
         focusIndex,
-        length,
+        length: normalizedLength,
         disabled,
         onChange,
         onComplete: handleComplete,
@@ -191,7 +193,7 @@ export function usePinInputController({
         setFocusIndex(nextFocusIndex);
       }
     },
-    [disabled, focusIndex, handleComplete, length, onChange, value]
+    [disabled, focusIndex, handleComplete, normalizedLength, onChange, value]
   );
 
   const handleSlotPress = useCallback(
@@ -212,14 +214,20 @@ export function usePinInputController({
       focusTextInput(inputRef.current);
       setIsInputFocused(true);
       setFocusIndex(nextFocusIndex);
-      setTextInputSelection(inputRef.current, nextFocusIndex, nextFocusIndex);
+      const shouldReplaceFocusedCharacter =
+        slotTapBehavior === 'focus' && index < value.length;
+      setTextInputSelection(
+        inputRef.current,
+        nextFocusIndex,
+        shouldReplaceFocusedCharacter ? nextFocusIndex + 1 : nextFocusIndex
+      );
     },
     [disabled, onChange, slotTapBehavior, value]
   );
 
   return {
     value,
-    length,
+    length: normalizedLength,
     type,
     autoCapitalize,
     focusIndex,
